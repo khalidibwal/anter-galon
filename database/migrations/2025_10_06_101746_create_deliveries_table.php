@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
 
             $table->unsignedBigInteger('courier_id');
-            $table->foreign('courier_id')->references('id')->on('users_galon')->onDelete('cascade');
+            $table->foreign('courier_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->dateTime('pickup_time');
             $table->dateTime('delivered_time')->nullable();

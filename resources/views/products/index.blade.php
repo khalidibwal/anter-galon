@@ -117,12 +117,25 @@
             @endif
         </section>
             @if(count($cart))
-    <button onclick="openCheckoutModal()"
-    class="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-md inline-block mt-10">
-    Checkout Pesanan
-</button>
-
+    @if(auth()->check())
+        {{-- Form langsung ke WhatsApp --}}
+        <form action="{{ route('checkout.whatsapp') }}" method="POST">
+            @csrf
+            <button type="submit"
+                class="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-md inline-block mt-10">
+                Checkout Pesanan ke WhatsApp
+            </button>
+        </form>
+    @else
+        {{-- Jika belum login, tampilkan tombol login --}}
+        <a href="{{ route('login') }}"
+            class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-md inline-block mt-10">
+            Daftar/Login untuk Checkout
+        </a>
+    @endif
 @endif
+
+
     </main>
 
 
@@ -156,43 +169,7 @@
     </div>
 </div>
 
-<!-- Modal Checkout -->
-<div id="checkoutModal" 
-     class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
 
-    <div class="bg-white p-6 rounded-lg shadow max-w-sm w-full">
-        <h2 class="text-lg font-semibold mb-3">Isi Data Anda</h2>
-
-        <form method="POST" action="{{ route('checkout.whatsapp') }}">
-            @csrf
-
-            <label class="block mb-3">
-                <span class="text-gray-700">Nama:</span>
-                <input type="text" name="nama" required
-                       class="w-full border rounded mt-1 p-2 focus:ring-blue-500">
-            </label>
-
-            <label class="block mb-4">
-                <span class="text-gray-700">Alamat:</span>
-                <textarea name="alamat" required rows="3"
-                          class="w-full border rounded mt-1 p-2 focus:ring-blue-500"></textarea>
-            </label>
-
-            <div class="flex justify-end space-x-3">
-                <button type="button"
-                        onclick="closeCheckoutModal()"
-                        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
-                    Batal
-                </button>
-
-                <button type="submit"
-                        class="px-4 py-2 bg-green-600 text-black rounded hover:bg-green-700">
-                    Kirim
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 
 <script>
     function openDeleteModal(productId) {

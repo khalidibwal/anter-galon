@@ -13,14 +13,14 @@ return new class extends Migration
 
             // user_id sebagai foreign key ke users_galon(id)
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users_galon')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             // courier_id nullable, foreign key ke users_galon(id)
             $table->unsignedBigInteger('courier_id')->nullable();
-            $table->foreign('courier_id')->references('id')->on('users_galon')->onDelete('set null');
+            $table->foreign('courier_id')->references('id')->on('users')->onDelete('set null');
 
             // address_id foreign key ke addresses(id)
-            $table->foreignId('address_id')->constrained('user_addresses')->onDelete('cascade');
+            $table->text('address');
 
             // status enum
             $table->enum('status', ['pending', 'assigned', 'on_delivery', 'completed', 'cancelled'])
