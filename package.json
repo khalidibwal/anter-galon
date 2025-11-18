@@ -1,0 +1,27 @@
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "laravel-mix",
+        "development": "laravel-mix",
+        "watch": "laravel-mix watch",
+        "hot": "laravel-mix watch --hot",
+        "prod": "laravel-mix --production",
+        "production": "laravel-mix --production"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "autoprefixer": "^10.4.21",
+        "axios": "^1.11.0",
+        "concurrently": "^9.0.1",
+        "laravel-mix": "^6.0.49",
+        "laravel-mix-cli": "^0.2.11",
+        "laravel-vite-plugin": "^2.0.0",
+        "postcss": "^8.5.6",
+        "tailwindcss": "^3.4.1",
+        "vite": "^7.0.7",
+        "webpack": "^5.102.0",
+        "webpack-cli": "^6.0.1"
+    }
+}
