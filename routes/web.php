@@ -46,7 +46,8 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 // 💧 Daftar produk galon (halaman utama produk)
-Route::get('/produk-galon', [ProductController::class, 'index'])->name('produk.index');
+Route::get('/produk-galon/{orderId?}', [ProductController::class, 'index'])->name('produk.index');
+
 
 // 🛒 Tambah produk ke cart (POST)
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');

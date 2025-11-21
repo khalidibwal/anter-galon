@@ -1,9 +1,9 @@
 @extends('Component.Landing.Layout')
 
 @section('content')
-<body class="bg-gray-50 text-gray-800 min-h-screen flex items-center justify-center">
+<div class="min-h-screen flex items-start justify-center pt-20 bg-gray-50 text-gray-800">
 
-    <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+    <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md mt-10">
         <h2 class="text-2xl font-bold mb-6 text-center">Login Akun</h2>
 
         {{-- Notifikasi sukses / error --}}
@@ -44,11 +44,11 @@
             </button>
         </form>
 
-        <p class="mt-4 text-center text-gray-600">
+        <p class="mt-４ text-center text-gray-600">
             Belum punya akun?
             <a href="{{ route('register') }}" class="text-blue-500 hover:underline">Daftar di sini</a>
         </p>
     </div>
 
-</body>
+</div>
 @endsection
