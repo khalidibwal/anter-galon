@@ -8,6 +8,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\MidtransWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,5 +58,28 @@ Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remov
 
 //checkout product ke whatapp
 Route::post('/checkout/whatsapp', [CheckoutController::class, 'whatsapp'])->name('checkout.whatsapp');
+
+//payment status
+Route::post('/payment/qris', [PaymentController::class, 'createQris'])->name('payment.qris');
+
+Route::get('/payment/status/{orderId}', function ($orderId) {
+
+    $trxKey = "trx_{$orderId}";
+    $trx = session($trxKey);
+
+    if (!$trx) return response()->json(['status' => 'pending']);
+
+    // Untuk sandbox: auto-settlement
+    if ($trx['status'] === 'pending') {
+        $trx['status'] = 'settlement';
+        session([$trxKey => $trx]);
+    }
+
+    return response()->json(['status' => $trx['status']]);
+});
+
+
+Route::post('/midtrans/webhook', [MidtransWebhookController::class, 'handle']);
+
 
 

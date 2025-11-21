@@ -34,7 +34,7 @@
         </div>
     </main>
 
-    @include('products.Component.Modal.Delete')
+    @extends('products.Component.Modal.Delete')
 
     <script>
         function openTab(tabId) {
@@ -63,6 +63,24 @@
             openTab('tab1');
         });
     </script>
+
+   <script>
+    function openDeleteModal(productId) {
+        const modal = document.getElementById('deleteModal');
+        const input = document.getElementById('deleteProductId');
+        input.value = productId; // set product_id
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+</script>
+
+
 
 </body>
 @endsection
