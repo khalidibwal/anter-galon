@@ -11,7 +11,7 @@
 <body class="bg-blue-50 font-sans text-gray-800">
 
     {{-- Header --}}
-    @include('Component.Landing.Header')
+    @include('Component.Landing.PaymentHeader')
 
     {{-- Content --}}
     <main class="min-h-screen">

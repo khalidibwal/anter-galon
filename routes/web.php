@@ -10,6 +10,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransWebhookController;
+use App\Http\Controllers\GoogleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,9 @@ Route::middleware('guest')->group(function () {
     // Form login
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/login', [AuthController::class, 'storeLogin']);
+
+    Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
+    Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 });
 
 // 🔒 Logout
@@ -53,15 +57,26 @@ Route::get('/produk-galon/{orderId?}', [ProductController::class, 'index'])->nam
 
 // 🛒 Tambah produk ke cart (POST)
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 
 //checkout product ke whatapp
 Route::post('/checkout/whatsapp', [CheckoutController::class, 'whatsapp'])->name('checkout.whatsapp');
 
-//payment status
+//payment method
+Route::post('/payment/method', [PaymentController::class, 'method'])->name('payment.method');
+
+// QRIS
 Route::post('/payment/qris', [PaymentController::class, 'createQris'])->name('payment.qris');
 
+// Virtual Account
+Route::post('/payment/va/bca', [PaymentController::class, 'createVaBca'])->name('payment.bca');
+Route::post('/payment/va/bni', [PaymentController::class, 'createVaBni'])->name('payment.bni');
+Route::post('/payment/va/bri', [PaymentController::class, 'createVaBri'])->name('payment.bri');
+Route::post('/payment/va/permata', [PaymentController::class, 'createVaPermata'])->name('payment.permata');
+
+
+
+//payment status
 Route::get('/payment/status/{orderId}', function ($orderId) {
 
     $trxKey = "trx_{$orderId}";
@@ -78,8 +93,6 @@ Route::get('/payment/status/{orderId}', function ($orderId) {
     return response()->json(['status' => $trx['status']]);
 });
 
-
 Route::post('/midtrans/webhook', [MidtransWebhookController::class, 'handle']);
-
 
 

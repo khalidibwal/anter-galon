@@ -1,11 +1,5 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>QRIS Payment</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
+@extends('Component.Landing.PaymentLayout')
+@section('content')
 
 <div class="max-w-md mx-auto bg-white shadow-lg rounded-xl p-6 mt-10">
 
@@ -40,6 +34,7 @@
         </p>
     </div>
 </div>
+@endsection
 
 <script>
     // === COUNTDOWN EXPIRE: 30 menit ===
@@ -92,5 +87,4 @@
     setInterval(checkPayment, 2000); // cek tiap 2 detik
 </script>
 
-</body>
-</html>
+
