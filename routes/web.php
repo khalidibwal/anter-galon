@@ -11,6 +11,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\UserAddressController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +54,31 @@ Route::middleware('guest')->group(function () {
 // 🔒 Logout
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
+Route::middleware('auth')->group(function () {
+    
+Route::get('/user/lokasi', [UserAddressController::class, 'edit'])
+    ->name('user.lokasi.edit')
+    ->middleware('auth');
+
+    Route::post('/user/lokasi', [LocationController::class, 'update'])
+        ->name('user.lokasi.update');
+
+    
+Route::post('/user/alamat/simpan', [UserAddressController::class, 'store'])
+    ->name('user.alamat.store')
+    ->middleware('auth');
+
+    Route::get('/payment/redirect', function () {
+    return view('payment.redirect-payment'); // nanti buat file blade
+})->middleware('auth')->name('payment.redirect');
+
+//Order shown
+Route::get('/orders/{order_id}', [OrderController::class, 'showByOrderId'])->name('orders.show');
+Route::get('/order/{order}/status', [OrderController::class, 'getStatus'])->name('order.status');
+
+});
+
+
 // 💧 Daftar produk galon (halaman utama produk)
 Route::get('/produk-galon/{orderId?}', [ProductController::class, 'index'])->name('produk.index');
 
@@ -62,8 +90,11 @@ Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remov
 //checkout product ke whatapp
 Route::post('/checkout/whatsapp', [CheckoutController::class, 'whatsapp'])->name('checkout.whatsapp');
 
-//payment method
-Route::post('/payment/method', [PaymentController::class, 'method'])->name('payment.method');
+Route::get('/payment/method', [PaymentController::class, 'method'])->name('payment.method');
+Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+Route::get('/payment/va', [PaymentController::class, 'vaPage'])->name('payment.va.page');
+Route::get('/payment/qris', [PaymentController::class, 'qrisPage'])->name('payment.qris.page');
+
 
 // QRIS
 Route::post('/payment/qris', [PaymentController::class, 'createQris'])->name('payment.qris');
@@ -78,20 +109,23 @@ Route::post('/payment/va/permata', [PaymentController::class, 'createVaPermata']
 
 //payment status
 Route::get('/payment/status/{orderId}', function ($orderId) {
+    $order = \App\Models\Order::where('order_id', $orderId)->first();
 
-    $trxKey = "trx_{$orderId}";
-    $trx = session($trxKey);
-
-    if (!$trx) return response()->json(['status' => 'pending']);
-
-    // Untuk sandbox: auto-settlement
-    if ($trx['status'] === 'pending') {
-        $trx['status'] = 'settlement';
-        session([$trxKey => $trx]);
+    if (!$order) {
+        return response()->json(['status' => 'pending']);
     }
 
-    return response()->json(['status' => $trx['status']]);
+    // Untuk sandbox, langsung set settlement
+    if ($order->status === 'pending') {
+        $order->status = 'settlement';
+        $order->save();
+    }
+
+    return response()->json(['status' => $order->status]);
 });
+
+
+
 
 Route::post('/midtrans/webhook', [MidtransWebhookController::class, 'handle']);
 

@@ -3,169 +3,123 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Order;
+use App\Models\OrderItem;
 
 class PaymentController extends Controller
 {
-    public function method(){
+    // Halaman pilih metode pembayaran
+    public function method()
+    {
         return view('payment.method');
     }
-   public function createQris(Request $request)
+
+    // Simpan order dan item
+    private function saveOrderToDatabase($orderId, $total, $paymentType, $charge)
+    {
+        $user = Auth::user();
+        $alamat = $user->alamatPengiriman;
+
+        $paymentCode = $charge->va_numbers[0]->va_number 
+                        ?? $charge->permata_va->va_number 
+                        ?? $charge->qr_string 
+                        ?? null;
+
+        $order = Order::create([
+            'user_id' => $user->id,
+            'order_id' => $orderId,
+            'gross_amount' => $total,
+            'payment_type' => $paymentType,
+            'payment_code' => $paymentCode,
+            'status' => 'pending',
+            'alamat' => $alamat->alamat ?? 'Alamat belum diatur',
+            'detail_alamat' => $alamat->detail_alamat ?? null,
+            'latitude' => $alamat->latitude ?? null,
+            'longitude' => $alamat->longitude ?? null,
+            'waktu_pengantaran' => $alamat->waktu_pengantaran ?? null,
+        ]);
+
+        $cart = session('cart', []);
+        foreach ($cart as $productId => $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $productId,
+                'product_name' => $item['name'],
+                'qty' => $item['qty'],
+                'price' => $item['price'],
+                'subtotal' => $item['qty'] * $item['price'],
+            ]);
+        }
+
+        return $order;
+    }
+
+    // Proses pembayaran Midtrans (server-side)
+    public function processPayment(Request $request)
 {
     $cart = session('cart', []);
-
     if (!$cart) return back()->with('error', 'Keranjang kosong!');
 
-    $total = 0;
-    foreach ($cart as $item) $total += $item['qty'] * $item['price'];
+    $total = array_sum(array_map(fn($i) => $i['qty'] * $i['price'], $cart)) + 200;
+    $paymentType = $request->payment_type;
+    $orderId = strtoupper($paymentType) . '-' . time();
 
-    // Tambahkan admin fee
-    $total += 200;
-
-    $orderId = 'ORDER-' . time();
-
+    // Parameter Midtrans
     $params = [
-        "payment_type" => "qris",
+        "payment_type" => ($paymentType === 'qris') ? 'qris' : 'bank_transfer',
         "transaction_details" => [
-            "order_id"     => $orderId,
+            "order_id" => $orderId,
             "gross_amount" => intval($total),
         ],
-        "qris" => [
-            "acquirer" => "gopay"
-        ]
     ];
 
-    $charge = \Midtrans\CoreApi::charge($params);
-
-    // Simpan transaksi di DB / session untuk status
-    session()->put("trx_{$orderId}", [
-        'status' => 'pending',
-        'gross_amount' => $total,
-    ]);
-
-    return view('payment.qris', ['data' => $charge]);
-}
-
-public function createVaBca(Request $request)
-{
-    $cart = session('cart', []);
-    if (!$cart) return back()->with('error', 'Keranjang kosong!');
-
-    $total = array_sum(array_map(fn($i) => $i['qty'] * $i['price'], $cart));
-    $total += 200;
-
-    $orderId = 'BCA-VA-' . time();
-
-    $params = [
-        "payment_type" => "bank_transfer",
-        "transaction_details" => [
-            "order_id"     => $orderId,
-            "gross_amount" => intval($total),
-        ],
-        "bank_transfer" => [
-            "bank" => "bca",
-            "va_number" => "12345", // opsional (jika tidak isi → midtrans buat sendiri)
-        ],
-        "customer_details" => [
-            "first_name" => "Customer",
-            "email" => "customer@mail.com"
-        ]
-    ];
+    if ($paymentType === 'qris') {
+        $params['qris'] = ['acquirer' => 'gopay'];
+    } elseif ($paymentType === 'permata') {
+        $params['permata_va'] = ['recipient_name' => 'My Shop'];
+    } else {
+        $params['bank_transfer'] = ['bank' => $paymentType];
+    }
 
     try {
         $charge = \Midtrans\CoreApi::charge($params);
+
+        $this->saveOrderToDatabase($orderId, $total, $paymentType, $charge);
+
+        session(['charge' => $charge]);
+
+        // ===== Kondisi Redirect =====
+        if ($paymentType === 'qris') {
+            return redirect()->route('payment.qris.page'); // redirect QRIS
+        } else {
+            return redirect()->route('payment.va.page'); // redirect VA/bank
+        }
+
     } catch (\Exception $e) {
         return back()->with('error', 'Midtrans Error: ' . $e->getMessage());
     }
-
-    session(["trx_$orderId" => [
-        'status' => 'pending',
-        'gross_amount' => $total,
-    ]]);
-
-    return view('payment.va', compact('charge'));
 }
 
-public function createVaBni(Request $request)
+
+    // Halaman VA / QRIS
+    public function vaPage()
+    {
+        $charge = session('charge');
+        if (!$charge) {
+            return redirect()->route('payment.method')->with('error', 'Data pembayaran tidak ditemukan.');
+        }
+
+        return view('payment.va', compact('charge'));
+    }
+    public function qrisPage()
 {
-    $cart = session('cart', []);
-    if (!$cart) return back()->with('error', 'Keranjang kosong!');
+    $charge = session('charge');
+    if (!$charge) {
+        return redirect()->route('payment.method')->with('error', 'Data pembayaran tidak ditemukan.');
+    }
 
-    $total = array_sum(array_map(fn($i) => $i['qty'] * $i['price'], $cart));
-    $total += 200;
-
-    $orderId = 'BNI-VA-' . time();
-
-    $params = [
-        "payment_type" => "bank_transfer",
-        "transaction_details" => [
-            "order_id" => $orderId,
-            "gross_amount" => intval($total),
-        ],
-        "bank_transfer" => [
-            "bank" => "bni",
-        ]
-    ];
-
-    $charge = \Midtrans\CoreApi::charge($params);
-
-    return view('payment.va', compact('charge'));
+    return view('payment.qris', compact('charge'));
 }
-
-public function createVaBri(Request $request)
-{
-    $cart = session('cart', []);
-    if (!$cart) return back()->with('error', 'Keranjang kosong!');
-
-    $total = array_sum(array_map(fn($i) => $i['qty'] * $i['price'], $cart));
-    $total += 200;
-
-    $orderId = 'BRI-VA-' . time();
-
-    $params = [
-        "payment_type" => "bank_transfer",
-        "transaction_details" => [
-            "order_id" => $orderId,
-            "gross_amount" => intval($total),
-        ],
-        "bank_transfer" => [
-            "bank" => "bri",
-        ]
-    ];
-
-    $charge = \Midtrans\CoreApi::charge($params);
-
-    return view('payment.va', compact('charge'));
-}
-
-public function createVaPermata(Request $request)
-{
-    $cart = session('cart', []);
-    if (!$cart) return back()->with('error', 'Keranjang kosong!');
-
-    $total = array_sum(array_map(fn($i) => $i['qty'] * $i['price'], $cart));
-    $total += 200;
-
-    $orderId = 'PERMATA-VA-' . time();
-
-    $params = [
-        "payment_type" => "permata",
-        "transaction_details" => [
-            "order_id" => $orderId,
-            "gross_amount" => intval($total),
-        ],
-        "permata_va" => [
-            "recipient_name" => "My Shop"
-        ]
-    ];
-
-    $charge = \Midtrans\CoreApi::charge($params);
-
-    return view('payment.va', compact('charge'));
-}
-
-
-
-
-
 
 }

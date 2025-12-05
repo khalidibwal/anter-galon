@@ -9,29 +9,24 @@ return new class extends Migration
     public function up()
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id(); // BIGINT AUTO_INCREMENT PRIMARY KEY
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
-            // user_id sebagai foreign key ke users_galon(id)
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        $table->string('order_id')->unique(); // order ID dari Midtrans
+        $table->integer('gross_amount');
+        $table->string('payment_type')->nullable();
+        $table->string('payment_code')->nullable(); // VA number atau qris string
+        $table->string('status')->default('pending'); // pending, paid, failed, expired
+        $table->string('delivery_status')->default('on_the_way'); // admin dapat update ini
+        // Alamat user (ambil dari tabel alamat agar tidak berubah)
+        $table->text('alamat');
+        $table->text('detail_alamat')->nullable();
+        $table->decimal('latitude', 10, 7)->nullable();
+        $table->decimal('longitude', 10, 7)->nullable();
+        $table->datetime('waktu_pengantaran')->nullable();
 
-            // courier_id nullable, foreign key ke users_galon(id)
-            $table->unsignedBigInteger('courier_id')->nullable();
-            $table->foreign('courier_id')->references('id')->on('users')->onDelete('set null');
-
-            // address_id foreign key ke addresses(id)
-            $table->text('address');
-
-            // status enum
-            $table->enum('status', ['pending', 'assigned', 'on_delivery', 'completed', 'cancelled'])
-                ->default('pending');
-
-            $table->dateTime('order_time');
-            $table->dateTime('delivery_time')->nullable();
-            $table->text('notes')->nullable();
-
-            $table->timestamps();
-        });
+        $table->timestamps();
+    });
     }
 
     public function down()

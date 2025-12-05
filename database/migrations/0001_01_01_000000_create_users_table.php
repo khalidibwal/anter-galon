@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         // Users table
@@ -16,21 +13,23 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->text('alamat')->nullable(); // <-- tambah alamat
+            $table->text('alamat')->nullable(); // alamat user
+            $table->decimal('latitude', 10, 7)->nullable();   // lokasi
+            $table->decimal('longitude', 10, 7)->nullable();  // lokasi
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
         });
 
-        // Password resets table (sesuai konvensi Laravel)
+        // Password resets
         Schema::create('password_resets', function (Blueprint $table) {
             $table->string('email')->index();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
 
-        // Sessions table
+        // Sessions
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
@@ -41,9 +40,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('sessions');

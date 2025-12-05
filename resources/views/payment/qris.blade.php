@@ -6,16 +6,26 @@
     <h2 class="text-2xl font-bold text-center mb-4">Scan QRIS untuk Membayar</h2>
 
     <div class="flex justify-center mb-4">
-        <img src="{{ $data->actions[0]->url }}" 
+        <img src="{{ $charge->actions[0]->url }}" 
              alt="QRIS" 
              class="w-64 rounded-lg shadow">
     </div>
 
     <div class="text-center space-y-1 mb-4">
-        <p class="font-semibold text-gray-700">Order ID: {{ $data->order_id }}</p>
+        <p class="font-semibold text-gray-700">Order ID: {{ $charge->order_id }}</p>
+
+        <!-- Detail harga -->
+        @php
+            $totalAmount = $charge->gross_amount; // total dari Midtrans
+            $adminFee = 200; // biaya admin
+            $subtotal = $totalAmount - $adminFee;
+        @endphp
+
+        <p class="text-gray-600 text-sm">Subtotal: Rp {{ number_format($subtotal, 0, ',', '.') }}</p>
+        <p class="text-gray-600 text-sm">Biaya Admin: Rp {{ number_format($adminFee, 0, ',', '.') }}</p>
 
         <p class="text-lg font-bold text-green-600">
-            Total: Rp {{ number_format($data->gross_amount, 0, ',', '.') }}
+            Total: Rp {{ number_format($totalAmount, 0, ',', '.') }}
         </p>
     </div>
 
@@ -62,29 +72,29 @@
     setInterval(updateCountdown, 1000);
 
     // === REALTIME CEK PEMBAYARAN ===
-    function checkPayment() {
-        fetch("/payment/status/{{ $data->order_id }}")
-            .then(res => res.json())
-            .then(res => {
-                if (res.status === "settlement" || res.status === "success") {
+    // === REALTIME CEK PEMBAYARAN ===
+function checkPayment() {
+    fetch("/payment/status/{{ $charge->order_id }}")
+        .then(res => res.json())
+        .then(res => {
+            if (res.status === "settlement" || res.status === "success") {
 
-                    document.getElementById("payment-status").innerHTML =
-                        "Pembayaran Berhasil ✓";
+                document.getElementById("payment-status").innerHTML =
+                    "Pembayaran Berhasil ✓";
 
-                    document.getElementById("payment-status").classList
-                        .remove("text-blue-600");
-                    document.getElementById("payment-status").classList
-                        .add("text-green-600");
+                document.getElementById("payment-status").classList
+                    .remove("text-blue-600");
+                document.getElementById("payment-status").classList
+                    .add("text-green-600");
 
-                    // Redirect ke HOME
-                    setTimeout(() => {
-                        window.location.href = "/";
-                    }, 1500);
-                }
-            });
-    }
+                // Redirect ke halaman status order
+                setTimeout(() => {
+                    window.location.href = "{{ route('orders.show', $charge->order_id) }}";
+                }, 1500);
+            }
+        });
+}
+
 
     setInterval(checkPayment, 2000); // cek tiap 2 detik
 </script>
-
-

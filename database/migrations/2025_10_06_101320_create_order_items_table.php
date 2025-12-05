@@ -9,20 +9,15 @@ return new class extends Migration
     public function up()
     {
         Schema::create('order_items', function (Blueprint $table) {
-            $table->id(); // BIGINT AUTO_INCREMENT PRIMARY KEY
-
-            $table->unsignedBigInteger('order_id');
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-
-            $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('restrict');
-
-            $table->integer('quantity');
-            $table->decimal('price', 10, 2);
-            $table->decimal('subtotal', 10, 2);
-
-            $table->timestamps();
-        });
+        $table->id();
+        $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+        $table->integer('product_id');
+        $table->string('product_name');
+        $table->integer('qty');
+        $table->integer('price'); // harga per item
+        $table->integer('subtotal');
+        $table->timestamps();
+    });
     }
 
     public function down()

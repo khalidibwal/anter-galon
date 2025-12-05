@@ -49,9 +49,27 @@ public function addresses()
     return $this->hasMany(UserAddress::class);
 }
 
+public function defaultAddress()
+{
+    return $this->hasOne(UserAddress::class)->latest();
+}
+
+
 public function orders()
 {
     return $this->hasMany(Order::class);
 }
+public function alamatPengiriman()
+    {
+        // Jika user hanya punya 1 alamat, pakai hasOne
+        return $this->hasOne(UserAddress::class)->latest();
+    }
+
+    // Jika user bisa punya banyak alamat:
+    public function alamat()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
 
 }

@@ -10,14 +10,19 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'courier_id',
-        'address',
-        'status',
-        'order_time',
-        'delivery_time',
-        'notes',
+        'user_id', 'order_id', 'gross_amount', 'payment_type', 'payment_code',
+        'status','delivery_status', 'alamat', 'detail_alamat', 'latitude', 'longitude', 'waktu_pengantaran'
     ];
+
+    protected $casts = [
+    'waktu_pengantaran' => 'datetime',
+];
+
+
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 
     /**
      * Relasi ke user yang memesan

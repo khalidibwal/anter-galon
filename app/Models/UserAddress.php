@@ -13,13 +13,14 @@ class UserAddress extends Model
 
     protected $fillable = [
         'user_id',
-        'address',
-        'is_default', // 1 = default, 0 = tidak
+        'latitude',
+        'longitude',
+        'alamat',
+        'detail_alamat',
+        'waktu_pengantaran',
+        'label',
     ];
 
-    /**
-     * Relasi ke user
-     */
     public function user()
     {
         return $this->belongsTo(User::class);

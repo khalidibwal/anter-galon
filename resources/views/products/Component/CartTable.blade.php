@@ -61,21 +61,19 @@
             @if(count($cart))
     @if(auth()->check())
     {{-- Tombol Pembayaran QRIS Midtrans --}}
-        <form id="qrisForm" action="{{ route('payment.method') }}" method="POST" class="mt-6">
+        {{-- <form id="qrisForm" action="{{ route('payment.method') }}" method="POST" class="mt-6">
             @csrf
             <button type="submit"
                 class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block">
                 Checkout Payment
             </button>
-        </form>
-        {{-- Form langsung ke WhatsApp --}}
-        <form id="checkoutForm" action="{{ route('checkout.whatsapp') }}" method="POST">
-            @csrf
-            <button type="submit" id="checkoutButton"
-                class="bg-green-500 hover:bg-green-600 text-black px-4 py-2 rounded-md inline-block mt-10">
-                Checkout Pesanan ke WhatsApp
-            </button>
-        </form>
+        </form> --}}
+        <a href="{{ route('user.lokasi.edit') }}"
+   class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block mt-5">
+    Checkout Payment
+</a>
+
+
     @else
         {{-- Jika belum login, tampilkan tombol login --}}
         <a href="{{ route('login') }}"
