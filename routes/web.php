@@ -75,6 +75,7 @@ Route::post('/user/alamat/simpan', [UserAddressController::class, 'store'])
 //Order shown
 Route::get('/orders/{order_id}', [OrderController::class, 'showByOrderId'])->name('orders.show');
 Route::get('/order/{order}/status', [OrderController::class, 'getStatus'])->name('order.status');
+Route::get('/order/{id}', [OrderController::class, 'show'])->name('order.show');
 
 });
 

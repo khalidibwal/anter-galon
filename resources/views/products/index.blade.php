@@ -16,6 +16,10 @@
                 id="tab2Button" onclick="openTab('tab2')">
                 Riwayat
             </button>
+            <button id="tab3Button" onclick="openTab('tab3')">
+    Status Pesanan
+</button>
+
         </div>
     </div>
 
@@ -32,6 +36,17 @@
         <div id="tab2" class="tab-content hidden">
             @include('activity.History')
         </div>
+        {{-- Tab 3 --}}
+  
+<div id="tab3" class="tab-content hidden">
+    @if($orders && $orders->count() > 0)
+        @include('order.orderList')
+    @else
+        <p class="text-gray-500">Belum ada order yang tersedia.</p>
+    @endif
+</div>
+
+
     </main>
 
     @extends('products.Component.Modal.Delete')
