@@ -60,24 +60,30 @@
         </section>
             @if(count($cart))
     @if(auth()->check())
-    {{-- Tombol Pembayaran QRIS Midtrans --}}
-        {{-- <form id="qrisForm" action="{{ route('payment.method') }}" method="POST" class="mt-6">
-            @csrf
-            <button type="submit"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block">
-                Checkout Payment
-            </button>
-        </form> --}}
-        <a href="{{ route('user.lokasi.edit') }}"
-   class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block mt-5">
-    Checkout Payment
-</a>
 
+        @if($hasPendingDelivery)
+            {{-- Tombol disabled jika masih ada pesanan belum selesai --}}
+            <button disabled
+                class="bg-gray-400 text-white px-4 py-2 rounded-md inline-block mt-5 cursor-not-allowed">
+                Checkout Payment (Selesaikan pesanan sebelumnya)
+            </button>
+
+            <p class="text-red-600 text-sm mt-2">
+                Anda masih memiliki pesanan yang belum selesai. Tunggu hingga pesanan selesai.
+            </p>
+
+        @else
+            {{-- Tombol checkout normal --}}
+            <a href="{{ route('user.lokasi.edit') }}"
+               class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block mt-5">
+                Checkout Payment
+            </a>
+        @endif
 
     @else
-        {{-- Jika belum login, tampilkan tombol login --}}
+        {{-- Tombol login jika belum login --}}
         <a href="{{ route('login') }}"
-            class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-md inline-block mt-10">
+           class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-md inline-block mt-10">
             Daftar/Login untuk Checkout
         </a>
     @endif

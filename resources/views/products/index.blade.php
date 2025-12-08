@@ -16,7 +16,8 @@
                 id="tab2Button" onclick="openTab('tab2')">
                 Riwayat
             </button>
-            <button id="tab3Button" onclick="openTab('tab3')">
+            <button class="tab-btn py-2 px-6 font-medium text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-400 transition duration-300 ease-in-out" 
+            id="tab3Button" onclick="openTab('tab3')">
     Status Pesanan
 </button>
 

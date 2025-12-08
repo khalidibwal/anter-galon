@@ -14,6 +14,8 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\OrderController;
+use App\Http\Middleware\CheckRole;
+use App\Http\Controllers\Admin\AdminController; // buat controller admin nanti
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +52,19 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
     Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 });
+
+Route::get('/admin/login', [AuthController::class, 'adminLoginForm'])
+    ->middleware('guest:admin')
+    ->name('admin.login');
+
+Route::post('/admin/login', [AuthController::class, 'storeAdminLogin'])
+    ->middleware('guest:admin');
+
+Route::middleware(['auth:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
+        ->name('admin.dashboard');
+});
+
 
 // 🔒 Logout
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
@@ -127,7 +142,7 @@ Route::get('/payment/status/{orderId}', function ($orderId) {
 
 
 
-
+//MIDTRANS PAYMENT GATEWAY DO NOT REMOVE !!!!
 Route::post('/midtrans/webhook', [MidtransWebhookController::class, 'handle']);
 
 

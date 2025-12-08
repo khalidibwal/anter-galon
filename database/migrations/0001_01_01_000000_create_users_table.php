@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('latitude', 10, 7)->nullable();   // lokasi
             $table->decimal('longitude', 10, 7)->nullable();  // lokasi
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('role')->default('user');
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

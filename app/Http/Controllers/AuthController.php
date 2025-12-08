@@ -69,4 +69,29 @@ class AuthController extends Controller
 
         return redirect('/')->with('success', 'Berhasil logout.');
     }
+    // Form login admin
+public function adminLoginForm()
+{
+    return view('Auth.admin-login'); // buat view khusus login admin
+}
+
+// Proses login admin
+public function storeAdminLogin(Request $request)
+{
+    $credentials = $request->only('email', 'password');
+
+    if (Auth::guard('admin')->attempt($credentials)) {
+
+        if (Auth::guard('admin')->user()->role !== 'admin') {
+            Auth::guard('admin')->logout();
+            return back()->with('error', 'Anda bukan admin!');
+        }
+
+        return redirect()->route('admin.dashboard');
+    }
+
+    return back()->with('error', 'Email atau password salah');
+}
+
+
 }

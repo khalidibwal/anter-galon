@@ -8,34 +8,34 @@ use App\Models\Order;
 class OrderController extends Controller
 {
     public function show($id)
-{
-    $order = Order::with('items.product', 'user')->findOrFail($id);
+    {
+        $order = Order::with('items.product', 'user')->findOrFail($id);
 
-    // Pastikan user hanya bisa melihat order miliknya
-    if ($order->user_id !== auth()->id()) {
-        abort(403);
+        // Pastikan user hanya bisa melihat order miliknya
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Progress bar delivery steps + DONE
+        $deliverySteps = [
+            'on_the_way'  => 'Kurir menuju rumah Anda',
+            'refill'      => 'Air galon sedang di Refil',
+            'delivering'  => 'Kurir mengantar galon Anda',
+            'done'        => 'Pesanan selesai'
+        ];
+
+        $stepKeys = array_keys($deliverySteps);
+        $currentStepIndex = array_search($order->delivery_status ?? 'on_the_way', $stepKeys);
+        $currentStepIndex = ($currentStepIndex === false) ? 0 : intval($currentStepIndex);
+        $totalSteps = count($deliverySteps);
+
+        return view('order.show', compact(
+            'order',
+            'deliverySteps',
+            'currentStepIndex',
+            'totalSteps'
+        ));
     }
-
-    // Progress bar delivery steps
-    $deliverySteps = [
-        'on_the_way' => 'Kurir menuju rumah Anda',
-        'refill' => 'Air galon sedang di Refil',
-        'delivering' => 'Kurir mengantar galon Anda'
-    ];
-
-    $stepKeys = array_keys($deliverySteps);
-    $currentStepIndex = array_search($order->delivery_status ?? 'on_the_way', $stepKeys);
-    $currentStepIndex = ($currentStepIndex === false) ? 0 : intval($currentStepIndex);
-    $totalSteps = count($deliverySteps);
-
-    return view('order.show', compact(
-        'order',
-        'deliverySteps',
-        'currentStepIndex',
-        'totalSteps'
-    ));
-}
-
 
     public function showByOrderId($order_id)
     {
@@ -46,11 +46,12 @@ class OrderController extends Controller
             abort(403);
         }
 
-        // Sama seperti di show()
+        // Sama seperti di show(), tambahkan DONE
         $deliverySteps = [
-            'on_the_way' => 'Kurir menuju rumah Anda',
-            'refill' => 'Air galon sedang di Refil',
-            'delivering' => 'Kurir mengantar galon Anda'
+            'on_the_way'  => 'Kurir menuju rumah Anda',
+            'refill'      => 'Air galon sedang di Refil',
+            'delivering'  => 'Kurir mengantar galon Anda',
+            'done'        => 'Pesanan selesai'
         ];
 
         $stepKeys = array_keys($deliverySteps);
@@ -67,25 +68,28 @@ class OrderController extends Controller
             'totalSteps'
         ));
     }
+
     public function getStatus(Order $order)
-{
-    if ($order->user_id !== auth()->id()) {
-        abort(403);
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Tambahkan DONE juga
+        $deliverySteps = [
+            'on_the_way'  => 'Kurir menuju rumah Anda',
+            'refill'      => 'Air galon sedang di Refil',
+            'delivering'  => 'Kurir mengantar galon Anda',
+            'done'        => 'Pesanan selesai'
+        ];
+
+        $stepKeys = array_keys($deliverySteps);
+        $currentStepIndex = array_search($order->delivery_status ?? 'on_the_way', $stepKeys);
+        $currentStepIndex = ($currentStepIndex === false) ? 0 : intval($currentStepIndex);
+
+        return response()->json([
+            'currentStepIndex' => $currentStepIndex,
+            'deliverySteps' => $deliverySteps
+        ]);
     }
-
-    $deliverySteps = [
-        'on_the_way' => 'Kurir menuju rumah Anda',
-        'refill' => 'Air galon sedang di Refil',
-        'delivering' => 'Kurir mengantar galon Anda'
-    ];
-
-    $stepKeys = array_keys($deliverySteps);
-    $currentStepIndex = array_search($order->delivery_status ?? 'on_the_way', $stepKeys);
-    $currentStepIndex = ($currentStepIndex === false) ? 0 : intval($currentStepIndex);
-
-    return response()->json([
-        'currentStepIndex' => $currentStepIndex,
-        'deliverySteps' => $deliverySteps
-    ]);
-}
 }

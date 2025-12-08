@@ -51,9 +51,14 @@
 
     <!-- Detail Order -->
     <div class="mb-6 space-y-2 mt-10">
-        <p><strong>Amount:</strong> Rp {{ number_format($order->gross_amount, 0, ',', '.') }}</p>
-        <p><strong>Payment Type:</strong> {{ $order->payment_type ?? '-' }}</p>
-        <p><strong>Payment Status:</strong> <span class="font-semibold">{{ ucfirst($order->status) }}</span></p>
+        <p><strong>Total:</strong> Rp {{ number_format($order->gross_amount, 0, ',', '.') }}</p>
+        <p><strong>Payment Type:</strong> <span class="uppercase">{{ $order->payment_type ?? '-' }}</span></p>
+        <p><strong>Payment Status:</strong> 
+    <span class="font-semibold">
+        {{ $order->status === 'settlement' ? 'Lunas' : ucfirst($order->status) }}
+    </span>
+</p>
+
         <p><strong>Delivery Status:</strong> <span class="font-semibold">{{ ucfirst($order->delivery_status) }}</span></p>
         <p>
             <strong>Order ID:</strong> 
