@@ -69,6 +69,16 @@ class AuthController extends Controller
 
         return redirect('/')->with('success', 'Berhasil logout.');
     }
+    public function logoutAdmin(Request $request)
+{
+    Auth::guard('admin')->logout();
+
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect('/admin/login')->with('success', 'Berhasil logout.');
+}
+
     // Form login admin
 public function adminLoginForm()
 {

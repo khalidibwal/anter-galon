@@ -15,7 +15,9 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\OrderController;
 use App\Http\Middleware\CheckRole;
-use App\Http\Controllers\Admin\AdminController; // buat controller admin nanti
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,11 +65,27 @@ Route::post('/admin/login', [AuthController::class, 'storeAdminLogin'])
 Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
         ->name('admin.dashboard');
+       // ✅ CRUD Product Admin
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('products', AdminProductController::class);
+    });
+
+     // ✅ ORDER ADMIN (TAMBAHKAN INI)
+    Route::get('/orders', [AdminOrderController::class, 'index'])
+        ->name('admin.orders.index');
+
+    Route::put('/orders/{order}/delivery-status',
+        [AdminOrderController::class, 'updateDeliveryStatus']
+    )->name('orders.updateDeliveryStatus');
 });
 
 
 // 🔒 Logout
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::post('admin/logout', [AuthController::class, 'logoutAdmin'])
+    ->middleware('auth:admin')
+    ->name('logout.admin');
+
 
 Route::middleware('auth')->group(function () {
     

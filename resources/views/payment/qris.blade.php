@@ -90,7 +90,7 @@ function checkPayment() {
                 // Redirect ke halaman status order
                 setTimeout(() => {
                     window.location.href = "{{ route('orders.show', $charge->order_id) }}";
-                }, 1500);
+                }, 5000);
             }
         });
 }
