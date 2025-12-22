@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 
 class GoogleController extends Controller
 {
@@ -16,7 +17,7 @@ class GoogleController extends Controller
     }
 
     // Callback dari Google
-    public function callback()
+    public function callback(Request $request)
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
 
@@ -33,7 +34,11 @@ class GoogleController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('produk.index')
+        // Cek apakah address_id ada di session
+        $addressId = session('address_id', null);
+
+        // Redirect ke produk.index dan tambahkan address_id jika ada
+        return redirect()->route('produk.index', ['address_id' => $addressId])
             ->with('success', 'Login menggunakan Google berhasil!');
     }
 }

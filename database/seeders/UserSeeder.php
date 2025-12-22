@@ -20,6 +20,15 @@ class UserSeeder extends Seeder
             'role' => 'admin',
             'password' => Hash::make('admin123'),
         ]);
+        User::create([
+            'name' => 'Super Admin',
+            'email' => 'superadmin@gmail.com',
+            'alamat' => 'Kantor Pusat',
+            'latitude' => null,
+            'longitude' => null,
+            'role' => 'admin',
+            'password' => Hash::make('admin123'),
+        ]);
 
     }
 }

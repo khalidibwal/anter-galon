@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id', 'order_id', 'gross_amount', 'payment_type', 'payment_code',
-        'status','delivery_status', 'alamat', 'detail_alamat', 'latitude', 'longitude', 'waktu_pengantaran'
+        'status','delivery_status', 'alamat', 'detail_alamat', 'latitude', 'longitude', 'waktu_pengantaran','address_id'
     ];
 
     protected $casts = [
@@ -47,4 +47,11 @@ class Order extends Model
     {
         return $this->belongsTo(UserAddress::class);
     }
+
+    public function depot()
+{
+    return $this->belongsTo(UserAddress::class, 'depot_id');
+}
+
+
 }

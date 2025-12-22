@@ -3,7 +3,7 @@
     <section class="text-center mb-16">
         <h2 class="text-4xl font-bold mb-4 text-blue-700">Air Galon Isi Ulang Berkualitas</h2>
         <p class="text-lg text-gray-600">Nikmati kesegaran air murni, aman untuk keluarga Anda. Antar langsung ke rumah!</p>
-        <a href="{{ route('produk.index') }}" class="mt-6 inline-block bg-blue-600 text-white py-3 px-6 rounded hover:bg-blue-700">Pesan Sekarang</a>
+        <a href="{{ route('map.depot') }}" class="mt-6 inline-block bg-blue-600 text-white py-3 px-6 rounded hover:bg-blue-700">Pesan Sekarang</a>
     </section>
 
     {{-- Layanan --}}

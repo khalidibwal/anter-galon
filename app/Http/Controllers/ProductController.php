@@ -6,13 +6,33 @@ use App\Models\Product;
 use App\Models\OrderItem;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index($orderId = null)
+    // Controller ProductController
+public function index(Request $request, $orderId = null)
 {
+    // Ambil address_id dari query string, jika ada
+    $addressId = $request->query('address_id');
+    //  dd($addressId);
+
+    // Simpan address_id ke session jika ada
+    if ($addressId) {
+        session(['address_id' => $addressId]);
+    }
+
     // Ambil semua produk yang masih ada stok
-    $products = Product::where('stock', '>', 0)->get();
+    $productsQuery = Product::where('stock', '>', 0);
+
+    // Jika address_id ada, filter produk sesuai dengan address_id
+    if ($addressId) {
+        // Filter produk berdasarkan address_id
+        $productsQuery->where('address_id', $addressId);
+    }
+
+    // Ambil produk sesuai query
+    $products = $productsQuery->get();
 
     // Ambil order items untuk produk yang ada, bisa filter berdasarkan order tertentu
     $orderItems = OrderItem::with('order', 'product')

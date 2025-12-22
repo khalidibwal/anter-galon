@@ -18,9 +18,8 @@
             </button>
             <button class="tab-btn py-2 px-6 font-medium text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-400 transition duration-300 ease-in-out" 
             id="tab3Button" onclick="openTab('tab3')">
-    Status Pesanan
-</button>
-
+                Status Pesanan
+            </button>
         </div>
     </div>
 
@@ -38,21 +37,19 @@
             @include('activity.History')
         </div>
         {{-- Tab 3 --}}
-  
-<div id="tab3" class="tab-content hidden">
-    @if($orders && $orders->count() > 0)
-        @include('order.orderList')
-    @else
-        <p class="text-gray-500">Belum ada order yang tersedia.</p>
-    @endif
-</div>
-
-
+        <div id="tab3" class="tab-content hidden">
+            @if($orders && $orders->count() > 0)
+                @include('order.orderList')
+            @else
+                <p class="text-gray-500">Belum ada order yang tersedia.</p>
+            @endif
+        </div>
     </main>
 
     @extends('products.Component.Modal.Delete')
 
     <script>
+        // Fungsi untuk membuka tab berdasarkan ID
         function openTab(tabId) {
             // Hide all tab contents
             const tabs = document.querySelectorAll('.tab-content');
@@ -74,29 +71,41 @@
             selectedButton.classList.remove('border-transparent', 'text-gray-600', 'font-medium');
         }
 
-        // Initialize default tab
+        // Fungsi untuk mengatur tab yang aktif berdasarkan URL
+        function setActiveTabFromURL() {
+            const hash = window.location.hash;
+            if (hash === '#tab3') {
+                openTab('tab3'); // Buka tab Status Pesanan
+            } else if (hash === '#tab1') {
+                openTab('tab1'); // Buka tab Pilih Produk
+            } else if (hash === '#tab2') {
+                openTab('tab2'); // Buka tab Riwayat
+            } else {
+                openTab('tab1'); // Default ke tab Pilih Produk
+            }
+        }
+
+        // Inisialisasi tab berdasarkan URL saat halaman dimuat
         document.addEventListener('DOMContentLoaded', () => {
-            openTab('tab1');
+            setActiveTabFromURL(); // Buka tab yang sesuai dengan URL
         });
     </script>
 
-   <script>
-    function openDeleteModal(productId) {
-        const modal = document.getElementById('deleteModal');
-        const input = document.getElementById('deleteProductId');
-        input.value = productId; // set product_id
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
+    <script>
+        function openDeleteModal(productId) {
+            const modal = document.getElementById('deleteModal');
+            const input = document.getElementById('deleteProductId');
+            input.value = productId; // set product_id
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
 
-    function closeDeleteModal() {
-        const modal = document.getElementById('deleteModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-</script>
-
-
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    </script>
 
 </body>
 @endsection

@@ -5,30 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserAddress extends Model
+class UserDepot extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_addresses';
-
     protected $fillable = [
         'user_id',
-        'latitude',
-        'longitude',
-        'alamat',
-        'detail_alamat',
-        'waktu_pengantaran',
-        'label',
+        'depot_id',
     ];
 
+    // Relasi ke tabel User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function orders()
-{
-    return $this->hasMany(Order::class, 'depot_id');
-}
-
+    // Relasi ke tabel UserAddress (Depot)
+    public function depot()
+    {
+        return $this->belongsTo(UserAddress::class, 'depot_id');
+    }
 }

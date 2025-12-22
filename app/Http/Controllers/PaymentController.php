@@ -15,45 +15,53 @@ class PaymentController extends Controller
         return view('payment.method');
     }
 
-    // Simpan order dan item
     private function saveOrderToDatabase($orderId, $total, $paymentType, $charge)
-    {
-        $user = Auth::user();
-        $alamat = $user->alamatPengiriman;
+{
+    $user = Auth::user();
+    $alamat = $user->alamatPengiriman;
+    // dd(session('address_id'));
+    // Retrieve address_id from session (assuming address_id is stored when the user selects the address)
+    $addressId = session('address_id', null);
 
-        $paymentCode = $charge->va_numbers[0]->va_number 
-                        ?? $charge->permata_va->va_number 
-                        ?? $charge->qr_string 
-                        ?? null;
+    $paymentCode = $charge->va_numbers[0]->va_number 
+                    ?? $charge->permata_va->va_number 
+                    ?? $charge->qr_string 
+                    ?? null;
 
-        $order = Order::create([
-            'user_id' => $user->id,
-            'order_id' => $orderId,
-            'gross_amount' => $total,
-            'payment_type' => $paymentType,
-            'payment_code' => $paymentCode,
-            'status' => 'pending',
-            'alamat' => $alamat->alamat ?? 'Alamat belum diatur',
-            'detail_alamat' => $alamat->detail_alamat ?? null,
-            'latitude' => $alamat->latitude ?? null,
-            'longitude' => $alamat->longitude ?? null,
-            'waktu_pengantaran' => $alamat->waktu_pengantaran ?? null,
+    // Create the order with the address_id included
+    $order = Order::create([
+        'user_id' => $user->id,
+        'order_id' => $orderId,
+        'gross_amount' => $total,
+        'payment_type' => $paymentType,
+        'payment_code' => $paymentCode,
+        'status' => 'pending',
+        'alamat' => $alamat->alamat ?? 'Alamat belum diatur',
+        'detail_alamat' => $alamat->detail_alamat ?? null,
+        'latitude' => $alamat->latitude ?? null,
+        'longitude' => $alamat->longitude ?? null,
+        'waktu_pengantaran' => $alamat->waktu_pengantaran ?? null,
+        'address_id' => $addressId,  // Add address_id to the order
+    ]);
+
+    // dd($order);  // Check the order object after creation
+
+    // Process the cart items and save them as order items
+    $cart = session('cart', []);
+    foreach ($cart as $productId => $item) {
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $productId,
+            'product_name' => $item['name'],
+            'qty' => $item['qty'],
+            'price' => $item['price'],
+            'subtotal' => $item['qty'] * $item['price'],
         ]);
-
-        $cart = session('cart', []);
-        foreach ($cart as $productId => $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $productId,
-                'product_name' => $item['name'],
-                'qty' => $item['qty'],
-                'price' => $item['price'],
-                'subtotal' => $item['qty'] * $item['price'],
-            ]);
-        }
-
-        return $order;
     }
+
+    return $order;
+}
+
 
     // Proses pembayaran Midtrans (server-side)
     public function processPayment(Request $request)

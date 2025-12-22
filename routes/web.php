@@ -18,6 +18,7 @@ use App\Http\Middleware\CheckRole;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminLocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,7 +69,14 @@ Route::middleware(['auth:admin'])->group(function () {
        // ✅ CRUD Product Admin
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('products', AdminProductController::class);
+        // 📍 Lokasi Depot (PAKAI user_addresses)
+        Route::get('/depot/lokasi', [AdminLocationController::class, 'edit'])
+            ->name('depot.lokasi.edit');
+
+        Route::post('/depot/lokasi', [AdminLocationController::class, 'update'])
+            ->name('depot.lokasi.update');
     });
+
 
      // ✅ ORDER ADMIN (TAMBAHKAN INI)
     Route::get('/orders', [AdminOrderController::class, 'index'])
@@ -101,6 +109,7 @@ Route::post('/user/alamat/simpan', [UserAddressController::class, 'store'])
     ->name('user.alamat.store')
     ->middleware('auth');
 
+    
     Route::get('/payment/redirect', function () {
     return view('payment.redirect-payment'); // nanti buat file blade
 })->middleware('auth')->name('payment.redirect');
@@ -159,8 +168,14 @@ Route::get('/payment/status/{orderId}', function ($orderId) {
 });
 
 
+//pilih Depot
+Route::get('/map', [UserAddressController::class, 'showMap'])->name('map.depot');
+
+
+
 
 //MIDTRANS PAYMENT GATEWAY DO NOT REMOVE !!!!
 Route::post('/midtrans/webhook', [MidtransWebhookController::class, 'handle']);
+
 
 

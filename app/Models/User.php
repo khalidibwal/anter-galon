@@ -72,5 +72,18 @@ public function alamatPengiriman()
         return $this->hasMany(UserAddress::class);
     }
 
+    // Ambil alamat yang dibuat oleh admin
+public function adminAddresses()
+{
+    return $this->hasMany(UserAddress::class)->whereHas('user', function($query) {
+        $query->where('role', 'admin');
+    });
+}
+public function depots()
+    {
+        return $this->hasMany(UserDepot::class);
+    }
+
+
 
 }

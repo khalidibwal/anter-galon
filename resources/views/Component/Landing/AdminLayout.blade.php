@@ -23,6 +23,12 @@
                 Dashboard
             </a>
 
+            <a href="{{ route('admin.depot.lokasi.edit') }}"
+   class="block px-4 py-2 rounded-md hover:bg-blue-900 hover:text-blue-300 transition">
+    Lokasi Depot
+</a>
+
+
             <a href="{{ route('admin.products.index') }}"
                class="block px-4 py-2 rounded-md hover:bg-blue-900 hover:text-blue-300 transition">
                 Produk

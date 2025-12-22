@@ -18,11 +18,17 @@ class Product extends Model
         'description',
         'price',
         'stock',
+        'address_id',
+        'user_id'
     ];
 
     // (Opsional) Format harga otomatis saat ditampilkan
     public function getFormattedPriceAttribute()
     {
         return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+    public function address()
+    {
+        return $this->belongsTo(UserAddress::class, 'address_id');
     }
 }

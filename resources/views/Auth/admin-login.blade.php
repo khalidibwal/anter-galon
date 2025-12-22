@@ -1,4 +1,4 @@
-@extends('Component.Landing.AdminLayout')
+@extends('Component.Landing.PlainLayout')
 @section('content')
 <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
     <div class="w-full max-w-md bg-white shadow-lg rounded-xl p-6">

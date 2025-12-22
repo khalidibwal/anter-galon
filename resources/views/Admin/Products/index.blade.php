@@ -41,6 +41,9 @@
                     <th class="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-500">
                         Stock
                     </th>
+                    <th class="hidden md:table-cell px-4 py-3 text-left text-xs font-semibold text-gray-500">
+                        Address
+                    </th>
                     <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500">
                         Action
                     </th>
@@ -74,6 +77,16 @@
                             {{ $product->stock }}
                         </td>
 
+                        {{-- Address Column --}}
+                        <td class="hidden md:table-cell px-4 py-3 text-sm text-gray-700">
+                            @if($product->address)
+                                {{ $product->address->alamat }} <br>
+                                ({{ $product->address->latitude }}, {{ $product->address->longitude }})
+                            @else
+                                No address assigned
+                            @endif
+                        </td>
+
                         <td class="px-4 py-3">
                             <div class="flex flex-col sm:flex-row justify-center gap-2">
                                 <a href="{{ route('admin.products.edit', $product->id) }}"
@@ -98,7 +111,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5"
+                        <td colspan="6"
                             class="px-4 py-6 text-center text-sm text-gray-500">
                             No products found.
                         </td>

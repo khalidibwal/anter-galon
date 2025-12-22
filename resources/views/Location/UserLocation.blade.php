@@ -1,28 +1,24 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pilih Lokasi User</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pilih Lokasi User</title>
 
-    <!-- TailwindCSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+<!-- TailwindCSS -->
+<script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Leaflet CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <!-- Leaflet Search Plugin -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-
-    <style>
-        #map { 
-            width: 100%;
-            height: 60vh; 
-            min-height: 320px; 
-        }
-    </style>
+<style>
+    #map { 
+        width: 100%;
+        height: 60vh; 
+        min-height: 320px; 
+    }
+</style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
 
@@ -36,10 +32,21 @@
         <input type="hidden" id="lat" name="latitude" value="{{ $alamat->latitude ?? '' }}">
         <input type="hidden" id="lng" name="longitude" value="{{ $alamat->longitude ?? '' }}">
 
-        <!-- Alamat otomatis dari geocoder -->
+        <!-- Alamat hidden -->
         <input type="hidden" id="alamat" name="alamat" value="{{ $alamat->alamat ?? '' }}">
 
+        <!-- Map -->
         <div id="map" class="rounded-lg overflow-hidden shadow mb-4"></div>
+
+        <!-- Input alamat yang terlihat -->
+        <div class="mb-3">
+            <label class="block mb-1 font-medium text-gray-700">Alamat Terpilih</label>
+            <input type="text" id="alamatText" 
+                   class="w-full border rounded p-2 bg-gray-100" 
+                   readonly 
+                   placeholder="Alamat akan muncul di sini ketika marker dipilih"
+                   value="{{ $alamat->alamat ?? '' }}">
+        </div>
 
         <!-- Detail Alamat -->
         <label class="block mb-2 font-medium text-gray-700">Detail Alamat / Catatan</label>
@@ -65,153 +72,116 @@
 <div id="address" class="p-2 text-center text-gray-700 font-medium"></div>
 
 <script>
-    var savedLat = "{{ $alamat->latitude ?? '' }}";
-    var savedLng = "{{ $alamat->longitude ?? '' }}";
+var savedLat = "{{ $alamat->latitude ?? '' }}";
+var savedLng = "{{ $alamat->longitude ?? '' }}";
+var map, marker;
 
-    var map, marker;
+// ================================
+// INIT MAP
+// ================================
+function initMap(lat, lng, zoom = 17) {
+    map = L.map('map').setView([lat, lng], zoom);
 
-    // ================================
-    // TILE LAYER GOOGLE MAP
-    // ================================
-    function setTileLayer() {
-        L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-            maxZoom: 20,
-            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-        }).addTo(map);
-    }
+    // Tile layer OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-    // ================================
-    // SEARCH BAR
-    // ================================
-    function addSearchControl() {
-        var searchControl = L.Control.geocoder({
-            defaultMarkGeocode: false,
-            placeholder: "Cari lokasi...",
-            geocoder: L.Control.Geocoder.nominatim()
+    // Marker
+    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+    // Update alamat awal
+    updateLocation(lat, lng);
+
+    // Drag marker
+    marker.on('dragend', function(e) {
+        let pos = e.target.getLatLng();
+        updateLocation(pos.lat, pos.lng);
+    });
+
+    // Klik map
+    map.on('click', function(e) {
+        marker.setLatLng(e.latlng);
+        updateLocation(e.latlng.lat, e.latlng.lng);
+    });
+}
+
+// ================================
+// UPDATE LOCATION & ADDRESS
+// ================================
+function updateLocation(lat, lng) {
+    document.getElementById('lat').value = lat;
+    document.getElementById('lng').value = lng;
+
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(res => res.json())
+        .then(data => {
+            let displayAddress = data.display_name || '';
+
+            // Update input visible
+            document.getElementById('alamatText').value = displayAddress;
+
+            // Update input hidden
+            document.getElementById('alamat').value = displayAddress;
+
+            // Update di bawah peta
+            document.getElementById('address').textContent = displayAddress;
+
+            // Update popup marker
+            marker.bindPopup(displayAddress).openPopup();
         })
-        .on("markgeocode", function(e) {
-            var center = e.geocode.center;
-            map.setView(center, 18);
-            updateMarkerAndAddress(center);
-        })
-        .addTo(map);
-    }
-
-    // ================================
-    // INIT MAP
-    // ================================
-    function initMap(lat, lng, zoom = 17) {
-        map = L.map('map').setView([lat, lng], zoom);
-        setTileLayer();
-
-        marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-        updateMarkerAndAddress({ lat: lat, lng: lng });
-
-        addSearchControl();
-
-        // Drag marker
-        marker.on('dragend', function(e) {
-            updateMarkerAndAddress(e.target.getLatLng());
+        .catch(err => {
+            console.log("Error fetching address:", err);
         });
+}
 
-        // Klik map
-        map.on('click', function(e) {
-            updateMarkerAndAddress(e.latlng);
-        });
+// ================================
+// DETECT DEVICE & INIT
+// ================================
+function detectDeviceAndInit() {
+    if (savedLat && savedLng) {
+        initMap(parseFloat(savedLat), parseFloat(savedLng), 17);
+    } else if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                initMap(pos.coords.latitude, pos.coords.longitude, 17);
+            },
+            function(err) {
+                console.log("GPS Error:", err);
+                initMap(-6.2000, 106.8166, 13);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    } else {
+        initMap(-6.2000, 106.8166, 13);
     }
+}
 
-    // ================================
-    // REVERSE GEOCODER
-    // ================================
-    var geocoder = L.Control.Geocoder.nominatim({ geocodingQueryParams: { addressdetails: 1 } });
+// ================================
+// FORM VALIDATION
+// ================================
+const detailAlamat = document.getElementById('detail_alamat');
+const waktuPengantaran = document.getElementById('waktu_pengantaran');
+const submitBtn = document.getElementById('submitBtn');
 
-    function updateMarkerAndAddress(latlng) {
-        marker.setLatLng(latlng);
-        document.getElementById('lat').value = latlng.lat;
-        document.getElementById('lng').value = latlng.lng;
-
-        geocoder.reverse(latlng, map.getZoom(), function(results) {
-            var r = results && results[0];
-            if (r) {
-                marker.bindPopup(r.name).openPopup();
-                document.getElementById('address').textContent = r.name;
-                document.getElementById('alamat').value = r.name;
-            }
-        });
+function validateForm() {
+    if (detailAlamat.value.trim() !== "" && waktuPengantaran.value !== "") {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('bg-gray-400');
+        submitBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+        submitBtn.classList.add('bg-gray-400');
     }
+}
 
-    // ================================
-    // PRIORITAS LOKASI
-    // ================================
-    function detectDeviceAndInit() {
-        if (savedLat && savedLng) {
-            initMap(parseFloat(savedLat), parseFloat(savedLng), 17);
-        } else if ("geolocation" in navigator) {
-            var isMobile = /Mobi|Android/i.test(navigator.userAgent);
+detailAlamat.addEventListener('input', validateForm);
+waktuPengantaran.addEventListener('input', validateForm);
 
-            if (isMobile) {
-                navigator.geolocation.watchPosition(
-                    function(pos) {
-                        var lat = pos.coords.latitude;
-                        var lng = pos.coords.longitude;
-
-                        if (!map) initMap(lat, lng, 18);
-                        else {
-                            marker.setLatLng([lat, lng]);
-                            map.setView([lat, lng]);
-                        }
-
-                        updateMarkerAndAddress({ lat: lat, lng: lng });
-                    },
-                    function(err) {
-                        console.log("GPS Error:", err);
-                        initMap(-6.2000, 106.8166, 13);
-                    },
-                    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
-                );
-            } else {
-                navigator.geolocation.getCurrentPosition(
-                    function(pos) {
-                        initMap(pos.coords.latitude, pos.coords.longitude, 17);
-                        updateMarkerAndAddress({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-                    },
-                    function(err) {
-                        console.log("GPS Error:", err);
-                        initMap(-6.2000, 106.8166, 13);
-                    },
-                    { enableHighAccuracy: true, timeout: 10000 }
-                );
-            }
-        } else {
-            initMap(-6.2000, 106.8166, 13);
-        }
-    }
-
-    // ================================
-    // VALIDASI FORM
-    // ================================
-    const detailAlamat = document.getElementById('detail_alamat');
-    const waktuPengantaran = document.getElementById('waktu_pengantaran');
-    const submitBtn = document.getElementById('submitBtn');
-
-    function validateForm() {
-        if (detailAlamat.value.trim() !== "" && waktuPengantaran.value !== "") {
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('bg-gray-400');
-            submitBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
-        } else {
-            submitBtn.disabled = true;
-            submitBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
-            submitBtn.classList.add('bg-gray-400');
-        }
-    }
-
-    detailAlamat.addEventListener('input', validateForm);
-    waktuPengantaran.addEventListener('input', validateForm);
-
-    // Jalankan
-    detectDeviceAndInit();
-    validateForm(); // cek awal
+// Jalankan
+detectDeviceAndInit();
+validateForm();
 </script>
 
 </body>

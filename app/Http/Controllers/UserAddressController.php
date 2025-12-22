@@ -40,4 +40,22 @@ class UserAddressController extends Controller
 
         return redirect()->route('payment.redirect');
     }
+    public function pilihDepot()
+{
+    // Ambil semua alamat yang dibuat oleh admin (depot)
+    $depots = UserAddress::whereHas('user', function($query) {
+        $query->where('role', 'admin'); // Menampilkan hanya depot dari admin
+    })->get();
+
+    // Mengirim data depot ke view
+    return view('Location.PilihDepot', compact('depots'));
+}
+// Di Controller (misalnya UserAddressController.php)
+public function showMap()
+    {
+        $addresses = UserAddress::all(); // ambil semua alamat
+        return view('Location.PilihDepot', compact('addresses'));
+    }
+
+
 }

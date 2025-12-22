@@ -27,7 +27,7 @@
                 <input
                     type="text"
                     name="name"
-                    value="{{ $product->name }}"
+                    value="{{ old('name', $product->name) }}"
                     required
                     class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm
                            focus:border-blue-500 focus:ring focus:ring-blue-200">
@@ -42,7 +42,7 @@
                     name="description"
                     rows="3"
                     class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm
-                           focus:border-blue-500 focus:ring focus:ring-blue-200">{{ $product->description }}</textarea>
+                           focus:border-blue-500 focus:ring focus:ring-blue-200">{{ old('description', $product->description) }}</textarea>
             </div>
 
             {{-- Price --}}
@@ -54,7 +54,7 @@
                     type="number"
                     step="0.01"
                     name="price"
-                    value="{{ $product->price }}"
+                    value="{{ old('price', $product->price) }}"
                     required
                     class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm
                            focus:border-blue-500 focus:ring focus:ring-blue-200">
@@ -68,10 +68,28 @@
                 <input
                     type="number"
                     name="stock"
-                    value="{{ $product->stock }}"
+                    value="{{ old('stock', $product->stock) }}"
                     required
                     class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm
                            focus:border-blue-500 focus:ring focus:ring-blue-200">
+            </div>
+
+            {{-- Address --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                </label>
+                <select
+                    name="address_id"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm
+                           focus:border-blue-500 focus:ring focus:ring-blue-200">
+                    <option value="">Select Address</option>
+                    @foreach($addresses as $address)
+                        <option value="{{ $address->id }}" {{ old('address_id', $product->address_id) == $address->id ? 'selected' : '' }}>
+                            {{ $address->alamat }} ({{ $address->latitude }}, {{ $address->longitude }})
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             {{-- Actions --}}

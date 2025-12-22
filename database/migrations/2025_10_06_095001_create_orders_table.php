@@ -24,6 +24,9 @@ return new class extends Migration
         $table->decimal('latitude', 10, 7)->nullable();
         $table->decimal('longitude', 10, 7)->nullable();
         $table->datetime('waktu_pengantaran')->nullable();
+        //depot id
+        $table->unsignedBigInteger('address_id')->nullable(); // depot yang dipilih
+        $table->foreign('address_id')->references('id')->on('user_addresses');
 
         $table->timestamps();
     });
