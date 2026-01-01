@@ -8,14 +8,40 @@
     <div class="grid grid-cols-1 gap-4">
 
         @php
-            $paymentMethods = [
-                ['type' => 'qris', 'name' => 'QRIS', 'desc' => 'Pembayaran cepat dengan QR', 'logo' => 'https://upload.wikimedia.org/wikipedia/commons/0/0b/QRIS_logo.svg'],
-                ['type' => 'bca', 'name' => 'BCA Virtual Account', 'desc' => 'Transfer melalui BCA', 'logo' => 'https://seeklogo.com/images/B/bca-bank-central-asia-logo-51233C9D4B-seeklogo.com.png'],
-                ['type' => 'bni', 'name' => 'BNI Virtual Account', 'desc' => 'Transfer melalui BNI', 'logo' => 'https://seeklogo.com/images/B/bni-bank-negara-indonesia-logo-0DB45C0F72-seeklogo.com.png'],
-                ['type' => 'bri', 'name' => 'BRI Virtual Account', 'desc' => 'Transfer melalui BRI', 'logo' => 'https://seeklogo.com/images/B/BRI-logo-472DD7A6B8-seeklogo.com.png'],
-                ['type' => 'permata', 'name' => 'Permata Virtual Account', 'desc' => 'Transfer melalui Permata', 'logo' => 'https://seeklogo.com/images/P/permata-bank-logo-338309C3D9-seeklogo.com.png'],
-            ];
-        @endphp
+    $paymentMethods = [
+        [
+            'type' => 'qris',
+            'name' => 'QRIS',
+            'desc' => 'Pembayaran cepat dengan QR',
+            'logo' => asset('images/payment/bca.png')
+        ],
+        [
+            'type' => 'bca',
+            'name' => 'BCA Virtual Account',
+            'desc' => 'Transfer melalui BCA',
+            'logo' => asset('images/payment/bca.png')
+        ],
+        [
+            'type' => 'bni',
+            'name' => 'BNI Virtual Account',
+            'desc' => 'Transfer melalui BNI',
+            'logo' => asset('images/payment/bni.png')
+        ],
+        [
+            'type' => 'bri',
+            'name' => 'BRI Virtual Account',
+            'desc' => 'Transfer melalui BRI',
+            'logo' => asset('images/payment/bri.png')
+        ],
+        [
+            'type' => 'permata',
+            'name' => 'Permata Virtual Account',
+            'desc' => 'Transfer melalui Permata',
+            'logo' => asset('images/payment/permata.png')
+        ],
+    ];
+@endphp
+
 
         @foreach($paymentMethods as $method)
 <form action="{{ route('payment.process') }}" method="POST">

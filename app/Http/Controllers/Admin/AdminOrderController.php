@@ -9,13 +9,27 @@ use Illuminate\Http\Request;
 class AdminOrderController extends Controller
 {
     public function index()
-    {
-        $orders = Order::with('user')
-            ->latest()
-            ->paginate(10);
+{
+    $admin = auth()->user();
 
-        return view('Admin.Orders.index', compact('orders'));
+    if (!$admin->isAdmin()) {
+        abort(403);
     }
+
+    $depot = $admin->depot;
+
+    if (!$depot) {
+        abort(403, 'Admin belum memiliki depot');
+    }
+
+    $orders = Order::with('user')
+        ->where('address_id', $depot->id)
+        ->latest()
+        ->paginate(10);
+
+    return view('Admin.Orders.index', compact('orders'));
+}
+
 
     public function updateDeliveryStatus(Request $request, Order $order)
     {

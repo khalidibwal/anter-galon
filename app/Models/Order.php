@@ -48,10 +48,12 @@ class Order extends Model
         return $this->belongsTo(UserAddress::class);
     }
 
+
+    // DEPOT
     public function depot()
-{
-    return $this->belongsTo(UserAddress::class, 'depot_id');
-}
+    {
+        return $this->belongsTo(UserAddress::class, 'address_id');
+    }
 
 
 }

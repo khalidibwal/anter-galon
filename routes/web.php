@@ -14,6 +14,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderHistoryController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -113,6 +114,9 @@ Route::post('/user/alamat/simpan', [UserAddressController::class, 'store'])
     Route::get('/payment/redirect', function () {
     return view('payment.redirect-payment'); // nanti buat file blade
 })->middleware('auth')->name('payment.redirect');
+
+ Route::get('/history', [OrderHistoryController::class, 'show'])
+        ->name('orders.history');
 
 //Order shown
 Route::get('/orders/{order_id}', [OrderController::class, 'showByOrderId'])->name('orders.show');

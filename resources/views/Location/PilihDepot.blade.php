@@ -51,19 +51,26 @@
 
         // Tambahkan semua marker
         addresses.forEach(addr => {
-            if(addr.latitude && addr.longitude){
-                const marker = L.marker([addr.latitude, addr.longitude])
-                    .bindPopup(`
-                        <b>${addr.label ?? 'Depot'}</b><br>
-                        ${addr.alamat ?? addr.detail_alamat}<br>
-                        <button onclick="selectDepot(${addr.id})" 
-                            class="mt-2 px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                            Pilih Depot
-                        </button>
-                    `);
-                markers.addLayer(marker);
-            }
-        });
+    // tampilkan hanya jika label === 'depot'
+    if (
+        addr.label === 'depot' &&
+        addr.latitude &&
+        addr.longitude
+    ) {
+        const marker = L.marker([addr.latitude, addr.longitude])
+            .bindPopup(`
+                <b>Depot</b><br>
+                ${addr.alamat ?? addr.detail_alamat}<br>
+                <button onclick="selectDepot(${addr.id})" 
+                    class="mt-2 px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    Pilih Depot
+                </button>
+            `);
+
+        markers.addLayer(marker);
+    }
+});
+
 
         // Fungsi pilih depot
         // Fungsi pilih depot

@@ -1,42 +1,78 @@
-<div class="container my-5">
-    <h2 class="mb-4 text-center">Order History</h2>
 
-    @if($orderItems->isEmpty())
-        <p class="text-center">No orders found.</p>
+
+
+<div class="max-w-6xl mx-auto px-4 py-10">
+
+    <h1 class="text-2xl font-bold mb-6">Riwayat Pesanan</h1>
+
+    @if($orders->count() === 0)
+        <div class="bg-white p-6 rounded-lg shadow text-center text-gray-500">
+            Belum ada pesanan.
+        </div>
     @else
-        @php
-            // Group order items berdasarkan order_id
-            $ordersGrouped = $orderItems->groupBy('order_id');
-        @endphp
 
-        @foreach($ordersGrouped as $orderId => $items)
-            <div class="mb-5">
-                <h4 class="mb-3">Order ID: {{ $orderId }}</h4>
+    <div class="overflow-x-auto bg-white rounded-lg shadow">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Order ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tanggal</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Total</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Pembayaran</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
+                </tr>
+            </thead>
 
-                <div class="row">
-                    @php $total = 0; @endphp
-                    @foreach($items as $item)
-                        @php $total += $item->subtotal; @endphp
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100 shadow-sm rounded-4 border border-dark">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ $item->product->name ?? 'Unknown Product' }}</h5>
-                                    <p class="card-text mb-1"><strong>Quantity:</strong> {{ $item->quantity }}</p>
-                                    <p class="card-text mb-1"><strong>Price:</strong> Rp{{ number_format($item->price, 2) }}</p>
-                                    <p class="card-text mb-1"><strong>Subtotal:</strong> Rp{{ number_format($item->subtotal, 2) }}</p>
-                                    <p class="card-text"><small class="text-muted">Created at: {{ $item->created_at->format('d M Y H:i') }}</small></p>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+            <tbody class="divide-y divide-gray-100">
+                @foreach($orders as $order)
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm font-mono text-gray-800">
+                        {{ $order->order_id }}
+                    </td>
 
-                <div class="card mt-2">
-                    <div class="card-body text-end">
-                        <h5>Total for Order {{ $orderId }}: Rp{{ number_format($total, 2) }}</h5>
-                    </div>
-                </div>
-            </div>
-        @endforeach
+                    <td class="px-4 py-3 text-sm text-gray-600">
+                        {{ $order->created_at->format('d M Y H:i') }}
+                    </td>
+
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-800">
+                        Rp {{ number_format($order->gross_amount, 0, ',', '.') }}
+                    </td>
+
+                    <td class="px-4 py-3 text-sm uppercase text-gray-600">
+                        {{ $order->payment_type ?? '-' }}
+                    </td>
+
+                    <td class="px-4 py-3">
+                        {{-- Payment Status --}}
+                        @php
+                            $statusColor = match($order->status) {
+                                'settlement', 'paid' => 'bg-green-100 text-green-700',
+                                'pending' => 'bg-yellow-100 text-yellow-700',
+                                'failed', 'expired' => 'bg-red-100 text-red-700',
+                                default => 'bg-gray-100 text-gray-600'
+                            };
+                        @endphp
+
+                        <span class="px-2 py-1 text-xs font-semibold rounded {{ $statusColor }}">
+                            {{ ucfirst($order->status) }}
+                        </span>
+                    </td>
+
+                    <td class="px-4 py-3 text-center">
+                        <a href="{{ route('order.show', $order->id) }}"
+                           class="inline-block text-sm px-4 py-1.5 rounded bg-blue-500 text-white hover:bg-blue-600">
+                            Detail
+                        </a>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+
+
     @endif
 </div>
+

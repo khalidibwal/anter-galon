@@ -45,45 +45,27 @@ class User extends Authenticatable
 
     // di App\Models\User.php
 
-public function addresses()
-{
-    return $this->hasMany(UserAddress::class);
-}
-
-public function defaultAddress()
-{
-    return $this->hasOne(UserAddress::class)->latest();
-}
-
-
-public function orders()
-{
-    return $this->hasMany(Order::class);
-}
-public function alamatPengiriman()
-    {
-        // Jika user hanya punya 1 alamat, pakai hasOne
-        return $this->hasOne(UserAddress::class)->latest();
-    }
-
-    // Jika user bisa punya banyak alamat:
-    public function alamat()
+ public function addresses()
     {
         return $this->hasMany(UserAddress::class);
     }
 
-    // Ambil alamat yang dibuat oleh admin
-public function adminAddresses()
-{
-    return $this->hasMany(UserAddress::class)->whereHas('user', function($query) {
-        $query->where('role', 'admin');
-    });
-}
-public function depots()
+    // DEPOT ADMIN (label = depot)
+    public function depot()
     {
-        return $this->hasMany(UserDepot::class);
+        return $this->hasOne(UserAddress::class)
+            ->where('label', 'depot');
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
 
 
 }
